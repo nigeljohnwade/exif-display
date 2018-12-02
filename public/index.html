@@ -1,15 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
   <head>
-    <meta charset="utf-8">
-    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <meta name="theme-color" content="#000000">
+    <meta charset="utf-8" />
+    <link rel="shortcut icon" href="%PUBLIC_URL%/favicon.ico" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1, shrink-to-fit=no"
+    />
+    <meta name="theme-color" content="#000000" />
+    <script src="https://cdn.jsdelivr.net/npm/exif-js"></script>
     <!--
       manifest.json provides metadata used when your web app is added to the
       homescreen on Android. See https://developers.google.com/web/fundamentals/web-app-manifest/
     -->
-    <link rel="manifest" href="%PUBLIC_URL%/manifest.json">
+    <link rel="manifest" href="%PUBLIC_URL%/manifest.json" />
     <!--
       Notice the use of %PUBLIC_URL% in the tags above.
       It will be replaced with the URL of the `public` folder during the build.
@@ -21,11 +25,66 @@
     -->
     <title>React App</title>
   </head>
+
   <body>
-    <noscript>
-      You need to enable JavaScript to run this app.
-    </noscript>
+    <noscript> You need to enable JavaScript to run this app. </noscript>
     <div id="root"></div>
+      <p>Dimensions: <span id="dimensions"></span></p>
+    <img id="img2" />
+    <p id="allMetaDataSpan"></p>
+    <br />
+    <input type="file" />
+    <script>
+      window.onload = init;
+
+      function init() {
+
+        var img2 = document.getElementById("img2");
+        var input = document.querySelector("input[type='file']");
+        input.addEventListener("change", e => {
+          console.log(e);
+
+          var reader = new FileReader();
+          reader.onload = (function(aImg) {
+            return function(e) {
+              aImg.src = e.target.result;
+              console.log(aImg);
+              aImg.addEventListener("load", e => {
+                console.log(e);
+                  EXIF.getData(img2, function() {
+                      var imageWidth = EXIF.getTag(this, "PixelXDimension");
+                      var imageHeight = EXIF.getTag(this, "PixelYDimension");
+                      var imageNaturalWidth = img2.naturalWidth;
+                      var imageNaturalHeight = img2.naturalHeight;
+                      var dimensions = document.getElementById("dimensions");
+                      dimensions.innerHTML = `EXIF Dimensions - ${imageWidth} x ${imageHeight}, Natural Dimensions - ${imageNaturalWidth} x ${imageNaturalHeight}`;
+                  });
+                  EXIF.getData(img2, function() {
+                      var allMetaData = EXIF.getAllTags(this);
+                      var allMetaDataSpan = document.getElementById("allMetaDataSpan");
+                      allMetaDataSpan.innerHTML = JSON.stringify(allMetaData, null, "\t");
+                  });
+                var imageNaturalWidth = img2.naturalWidth;
+                var imageNaturalHeight = img2.naturalHeight;
+                console.log(
+                  `Natural Dimensions - ${imageNaturalWidth} x ${imageNaturalHeight}`
+                );
+                if (imageNaturalWidth / imageNaturalHeight !== 2) {
+                  console.log(false);
+                  aImg.classList.add("invalid-dimensions");
+                }
+              });
+            };
+          })(img2);
+          reader.readAsDataURL(e.target.files[0]);
+        });
+        // EXIF.getData(img2, function() {
+        //   var allMetaData = EXIF.getAllTags(this);
+        //   var allMetaDataSpan = document.getElementById("allMetaDataSpan");
+        //   allMetaDataSpan.innerHTML = JSON.stringify(allMetaData, null, "\t");
+        // });
+      }
+    </script>
     <!--
       This HTML file is a template.
       If you open it directly in the browser, you will see an empty page.
