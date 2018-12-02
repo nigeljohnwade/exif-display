@@ -61,6 +61,10 @@
                   });
                   EXIF.getData(img2, function() {
                       var allMetaData = EXIF.getAllTags(this);
+                      Object.keys(allMetaData).map((element)=>{
+                          img2.setAttribute(`data-${element}`, allMetaData[element])
+                      });
+                      // document.querySelector('body').appenChild(img2)
                       var allMetaDataSpan = document.getElementById("allMetaDataSpan");
                       allMetaDataSpan.innerHTML = JSON.stringify(allMetaData, null, "\t");
                   });
